@@ -25,8 +25,8 @@ const useSelection = () => {
 
   const markRead = () => updateSelection({ read: true });
   const markUnread = () => updateSelection({ read: false });
-  const archive = () => {
-    updateSelection({ archived: true });
+  const archive = (archived = true) => {
+    updateSelection({ archived });
     clear();
   };
 
