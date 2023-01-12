@@ -23,4 +23,7 @@ export default {
   updateEmail(email) {
     return api.put(`/emails/${email.id}`, email);
   },
+  bulkEmailUpdate(emails) {
+    return Promise.all[emails.map((email) => this.updateEmail(email))];
+  },
 };
