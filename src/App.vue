@@ -9,10 +9,17 @@
 
 <script>
 import MailTable from "@/components/MailTable";
+import useSelection from "@/composable/use-selection";
+
 export default {
   name: "App",
   components: {
     MailTable,
+  },
+  setup() {
+    return {
+      selection: useSelection(),
+    };
   },
 };
 </script>
@@ -155,7 +162,12 @@ input[type="checkbox"]:checked {
 }
 
 .bulk-action-bar .checkbox {
+  display: inline-block;
   margin-right: 6px;
   margin-left: 3px;
+}
+
+.bulk-action-bar .buttons {
+  display: inline-block;
 }
 </style>
