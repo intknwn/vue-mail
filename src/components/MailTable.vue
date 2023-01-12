@@ -1,5 +1,9 @@
 <template>
-  <BulkActionBar :emails="emails" />
+  <div class="buttons">
+    <button :disabled="view !== VIEWS.ARCHIVED" @click="selectView(VIEWS.INBOX)">Inbox</button>
+    <button :disabled="view !== VIEWS.INBOX" @click="selectView(VIEWS.ARCHIVED)">Archived</button>
+  </div>
+  <BulkActionBar :emails="emails" :view="view" />
   <table class="mail-table">
     <tbody>
       <tr v-for="email in emails" :key="email.id" :class="['clickable', { read: email.read }]">
@@ -17,7 +21,11 @@
           </p>
         </td>
         <td @click="readEmail(email)">{{ formatDate(email.sentAt) }}</td>
-        <td><button @click="archiveEmail(email)">Archive</button></td>
+        <td>
+          <button @click="archiveEmail(email)">
+            {{ view === VIEWS.INBOX ? "Archive" : "Move to Inbox" }}
+          </button>
+        </td>
       </tr>
     </tbody>
   </table>
@@ -34,13 +42,20 @@ import MailView from "@/components/MailView.vue";
 import ModalView from "@/components/ModalView.vue";
 import BulkActionBar from "@/components//BulkActionBar.vue";
 import useSelection from "@/composable/use-selection";
+import { VIEWS } from "@/const.js";
 
 export default {
   async setup() {
     const { data: emails } = await EMailService.getEmails();
     const openedEmail = ref(null);
 
-    return { unprocessedEmails: ref(emails), selection: useSelection(), openedEmail };
+    return {
+      VIEWS,
+      view: ref(VIEWS.INBOX),
+      unprocessedEmails: ref(emails),
+      selection: useSelection(),
+      openedEmail,
+    };
   },
   components: {
     MailView,
@@ -48,16 +63,21 @@ export default {
     BulkActionBar,
   },
   methods: {
+    selectView(view) {
+      this.view = view;
+      this.selection.clear();
+    },
     formatDate(date) {
       return format(new Date(date), "MMM do yyyy");
     },
     readEmail(email) {
       this.openedEmail = email;
-      return EMailService.readEmail(email);
+      email.read = true;
+      return EMailService.updateEmail(email);
     },
     archiveEmail(email) {
       email.archived = !email.archived;
-      return EMailService.archiveEmail(email);
+      return EMailService.updateEmail(email);
     },
     updateEmail(changes) {
       const email = this.openedEmail;
@@ -81,9 +101,11 @@ export default {
   },
   computed: {
     emails() {
-      return this.unprocessedEmails
-        .sort((e1, e2) => (e1.sentAt < e2.sentAt ? 1 : -1))
-        .filter((e) => !e.archived);
+      const sorted = this.unprocessedEmails.sort((e1, e2) => (e1.sentAt < e2.sentAt ? 1 : -1));
+
+      return this.view === this.VIEWS.INBOX
+        ? sorted.filter((e) => !e.archived)
+        : sorted.filter((e) => e.archived);
     },
   },
 };

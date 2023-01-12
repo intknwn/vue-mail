@@ -12,14 +12,6 @@ export default {
   getEmails() {
     return api.get("/emails");
   },
-  readEmail(email) {
-    email.read = true;
-    this.updateEmail(email);
-  },
-  archiveEmail(email) {
-    email.archived = true;
-    this.updateEmail(email);
-  },
   updateEmail(email) {
     return api.put(`/emails/${email.id}`, email);
   },

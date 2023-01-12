@@ -9,17 +9,11 @@
 
 <script>
 import MailTable from "@/components/MailTable";
-import useSelection from "@/composable/use-selection";
 
 export default {
   name: "App",
   components: {
     MailTable,
-  },
-  setup() {
-    return {
-      selection: useSelection(),
-    };
   },
 };
 </script>
